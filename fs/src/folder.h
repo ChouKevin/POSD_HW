@@ -3,8 +3,9 @@
 
 #include "node.h"
 #include <vector>
-#include "file.h"
 #include "visitor.h"
+#include <iostream>
+#include <sstream>
 class Folder : public Node
 {
     friend SizeVisitor;

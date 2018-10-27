@@ -6,13 +6,13 @@ TEST=test
 OBJ=obj
 LIBS=-lgtest -lpthread
 
-all: dirs $(BIN)/hw4
+all: dirs $(BIN)/ut_fs
 
-$(BIN)/hw4: $(TEST)/ut_fs.cpp $(TEST)/ut_fs.h $(SRC)/node.h $(SRC)/folder.h $(SRC)/file.h \
-	$(OBJ)/visitor.o
+$(BIN)/ut_fs: $(TEST)/ut_fs.cpp $(TEST)/ut_fs.h $(SRC)/node.h \
+	$(SRC)/folder.h $(SRC)/file.h $(OBJ)/visitor.o
 	g++ -std=c++11 $< $(OBJ)/visitor.o -o $@ $(LIBS)
 
-$(OBJ)/visitor.o: $(SRC)/visitor.h $(SRC)/visitor.cpp
+$(OBJ)/visitor.o: $(SRC)/visitor.cpp $(SRC)/visitor.h
 	g++ -std=c++11 -c $< -o $@
 
 dirs:

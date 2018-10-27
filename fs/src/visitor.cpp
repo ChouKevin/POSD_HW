@@ -1,7 +1,6 @@
 #include "visitor.h"
 #include "file.h"
 #include "folder.h"
-#include "node.h"
 SizeVisitor::SizeVisitor(): _size(0){};
 
 void SizeVisitor::visit(File* file){
