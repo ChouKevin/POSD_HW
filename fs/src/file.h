@@ -3,25 +3,28 @@
 
 #include "node.h"
 #include <string>
-#include "visitor.h"
-class File: public Node{
-public:
-  File(const char * path): Node(path)
-  {
+#include "node_visitor.h"
+#include "node_iterator.h"
+#include "null_iterator.h"
+class File : public Node
+{
+  public:
+    File(const char *path) : Node(path)
+    {
+    }
 
-  }
-  std::string find(std::string nodeName) const {
-    if(this->name().compare(nodeName) == 0) return nodeName;
-    return "";
-  }
-  std::string findPath(std::string nodeName) const{
-    if(this->name().compare(nodeName) == 0) return this->getPath();
-    return "";
-  }
+    int numberOfChildren() const
+    {
+        return -1;
+    }
 
-  void accept(SizeVisitor* v){
-    v->visit(this);
-  }
+    void accept(NodeVisitor* v) {
+        v->visitFile(this);
+    }
+
+    NodeIterator* createIterator(){
+        return new NullIterator(this);
+    }
 };
 
 #endif

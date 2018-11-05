@@ -1,27 +1,55 @@
-#if !defined(FOLDER)
-#define FOLDER
+#if !defined(FOLDER_H)
+#define FOLDER_H
 
 #include "node.h"
-#include <vector>
-#include "visitor.h"
-#include <iostream>
-#include <sstream>
+#include <map>
+#include "node_visitor.h"
+#include "node_iterator.h"
+#include <string>
 class Folder : public Node
 {
-    friend SizeVisitor;
-
   public:
+    class FolderIterator : public NodeIterator
+    {
+      public:
+        FolderIterator(Folder *f) : _folder(f) {}
+        void first()
+        {
+            this->_it = this->_folder->_children.begin();
+        }
+        void next()
+        {
+            if (this->isDone())
+                throw std::string("moving past the end");
+            this->_it++;
+        }
+        Node* currentItem()
+        {
+            if (isDone())
+                throw std::string("no currnet item");
+            return this->_it->second;
+        }
+        bool isDone()
+        {
+            return this->_it == this->_folder->_children.end();
+        }
+
+      private:
+        Folder *_folder;
+        std::map<std::string, Node *>::iterator _it;
+    };
     Folder(const char *path) : Node(path)
     {
     }
 
     void add(Node *node)
     {
-        _children.push_back(node);
+        _children.insert(std::pair<std::string, Node*>(node->name(), node));
     }
 
-    void accept(SizeVisitor* v){
-        v->visit(this);
+    void accept(NodeVisitor *v)
+    {
+        v->visitFolder(this);
     }
 
     int numberOfChildren() const
@@ -29,55 +57,13 @@ class Folder : public Node
         return _children.size();
     }
 
-    std::string findPath(std::string nodeName) const
+    NodeIterator* createIterator()
     {
-        std::string filePath = "";
-        for (auto const &node : this->_children)
-        {
-            if (node->name().compare(nodeName) == 0)
-            {
-                std::cout << "by node name : " << node->getPath() << std::endl;
-                filePath += node->getPath() + " ";
-            }
-            std::string path = node->findPath(nodeName);
-            if (!path.empty() && path.compare(node->getPath()) != 0)
-            {
-                std::cout << "by find path : " << path << std::endl;
-                filePath += path + " ";
-            }
-        }
-        return filePath;
-    }
-    std::string find(std::string nodeName) const
-    {
-        std::string totalPath = this->findPath(nodeName);
-        std::cout << "result : " << totalPath << std::endl;
-        return this->concatPath(this->findPath(nodeName));
+        return new FolderIterator(this);
     }
 
-  private:
-    std::string concatPath(std::string filePath) const
-    {
-        std::istringstream ss(filePath);
-        std::string token;
-        std::string result;
-        bool isMoreThenOne = false;
-        while (std::getline(ss, token, ' '))
-        {
-            size_t pos = token.find(this->getPath());
-            if (pos != std::string::npos)
-            {
-                token.erase(pos, this->getPath().length());
-                if (isMoreThenOne)
-                    result += "\n";
-                else
-                    isMoreThenOne = true;
-                result += "." + token;
-            }
-        }
-        return result;
-    }
-    std::vector<Node *> _children;
+  private: 
+    std::map<std::string, Node *> _children;
 };
 
 #endif // FOLDER
